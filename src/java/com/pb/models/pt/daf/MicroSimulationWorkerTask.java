@@ -251,10 +251,16 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
         for (PTHousehold household : households) {
             household.workers = (byte)workersByHhId[household.ID];
-            //logger.info("*** Summary: " + household.summary());
+            if (tracer.isTraceHousehold(household.ID)) {
+            	ptLogger.info("*** Summary: " + household.summary());
+    		}
             aom.calculateUtility(household);
+			ptLogger.info(getName() + ", Sensitivity testing mode flag" + sensitivityTestingMode);
             household.autos = (byte) aom.chooseAutoOwnershipWithRandomSeedControl(sensitivityTestingMode, household.ID);
             autosByHhId.put(household.ID, household.autos);
+            if (tracer.isTraceHousehold(household.ID)) {
+            	ptLogger.info("*** Summary: " + household.summary());
+    		}
         }
 
 
@@ -425,6 +431,7 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
         }
 
         // read workplace locations from file
+        ptLogger.info("Initializing TAZ manager from auto ownership ");
         String file = ResourceUtil.getProperty( ptRb, "sdt.employment");
         tazManager.updateWorkersFromSummary(file);
     }

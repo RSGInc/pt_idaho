@@ -148,7 +148,7 @@ public class PTMasterTask extends Task {
         hhInfo = readHouseholdFile();     // returns first hhId (0 or 1), num of HHs, nWorkers per HH, income per HH, homeTaz per HH.
                                                           // (hhInfo[0][0] = firstIdNum,
                                                           // hhInfo[1][0] = nHhs,
-                                                          // hhInfo[2][0-maxId] = nWorkers per HH
+                                                          // hhInfo[2][0-maxId] = nWorkers per HH (populated with 0)
                                                           // hhInfo[3][0-maxId] = income per HH    / autos per HH (after AutoOwn)
                                                           // hhInfo[4][0-maxId] = home taz per HH
                                                           //hhInfo[5][0-maxId] =  hhSegment (after AutoOwn)         

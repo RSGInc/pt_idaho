@@ -154,6 +154,7 @@ public class PTPerson implements Serializable, Comparable {
         string += " industry: " + industry + ",";
         string += " work taz: " + workTaz + ",";
         string += " segment: " + segment;
+        string += " seed: " + randomSeed;
         if (weekdayPattern != null) {
             string += ", pattern: " + weekdayPattern;
         }

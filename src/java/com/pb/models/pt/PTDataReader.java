@@ -518,6 +518,7 @@ public class PTDataReader {
             while (line != null) {
                 PTPerson person = new PTPerson();
                 parsePersonLine(person, line, positions);
+                person.randomSeed = (long) person.hhID * 100 + person.memberID;
 
                 persons.add(person);
                 line = personReader.readLine();
