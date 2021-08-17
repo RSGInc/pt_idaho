@@ -115,7 +115,7 @@ public class WorkBasedTourModel{
                              
           // Draw the primary Stop ratio from Distribution(PctWorkBasedDuration.csv) - coheno, Feb 26,07
           try {
-              percentPrimaryDestinationTime = drawFromAccumulativeDistribution(PRIM_COL);
+              percentPrimaryDestinationTime = drawFromAccumulativeDistribution(PRIM_COL, random);
           } catch (Exception e) {
               e.printStackTrace();
               System.exit(1);
@@ -158,7 +158,7 @@ public class WorkBasedTourModel{
           
           //Draw the First Stop Ratio from Distribution (PctWorkBasedDuration.csv) - coheno, Feb 26,07
           try{
-              firstDurationPercent = drawFromAccumulativeDistribution(FIRST_COL);
+              firstDurationPercent = drawFromAccumulativeDistribution(FIRST_COL, random);
              } catch (Exception e) {
                  e.printStackTrace();
                  System.exit(1);
@@ -235,8 +235,8 @@ public class WorkBasedTourModel{
 
      }
      
-     public double drawFromAccumulativeDistribution(String colName) throws Exception {
-         double rand= Math.random();
+     public double drawFromAccumulativeDistribution(String colName, Random random) throws Exception {
+         double rand= random.nextDouble();
          int row=1;
          while (rand> stopDurationTable.getValueAt(row,colName)) 
              row++;

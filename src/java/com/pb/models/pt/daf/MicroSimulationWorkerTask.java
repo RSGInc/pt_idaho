@@ -255,7 +255,6 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
             	ptLogger.info("*** Summary: " + household.summary());
     		}
             aom.calculateUtility(household);
-			ptLogger.info(getName() + ", Sensitivity testing mode flag" + sensitivityTestingMode);
             household.autos = (byte) aom.chooseAutoOwnershipWithRandomSeedControl(sensitivityTestingMode, household.ID);
             autosByHhId.put(household.ID, household.autos);
             if (tracer.isTraceHousehold(household.ID)) {
@@ -489,6 +488,13 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
     				if(sensitivityTestingMode) random.setSeed(patternModelFixedSeed+person.randomSeed+System.currentTimeMillis());
     				else random.setSeed(patternModelFixedSeed + person.randomSeed);
+    				
+    				if (tracePerson) {
+    					ptLogger.info(getName() + ", Applying patternModel to HH " + household.ID + ", Person "
+    							+ person.memberID + ".");
+    					ptLogger.info(getName() + ", patternModelFixedSeed Used: " + patternModelFixedSeed + person.summary());
+    				}
+
 
     				String patternName = patternModel.choosePattern(random).getName();
 
@@ -500,6 +506,10 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     				person.setPattern(new Pattern(patternName));
     				person.setPatternLogsum(patternModelLogsum); 
     				ptLogger.debug(getName() + ", Pattern is set");
+    				if (tracePerson) { 
+        				ptLogger.info(getName() + ", Pattern is set");
+    				}
+
 
     				if(person.weekdayPattern.toString().equals("h")||
     						person.weekdayPattern.toString().equals("H"))
@@ -512,6 +522,9 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     				person.prioritizeTours();
 
     				ptLogger.debug(getName() + ", Running stop choice.");
+    				if (tracePerson) { 
+        				ptLogger.info(getName() + ", Running stop choice.");
+    				}
     				
     				for (int t = 0; t < person.getTourCount(); ++t) {
     					Tour tour = person.weekdayTours[t];
@@ -527,6 +540,9 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     				}
 
     				ptLogger.debug(getName() + ", Running the scheduling model.");
+    				if (tracePerson) { 
+        				ptLogger.info(getName() + ", Running the scheduling model.");
+    				}
     				
     				if(sensitivityTestingMode)
     					random.setSeed(tourSchedulingFixedSeed + person.randomSeed + System.currentTimeMillis());
@@ -536,6 +552,9 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     						skims, random);
     				
     				ptLogger.debug(getName() + ", Schedule is set");
+    				if (tracePerson) { 
+        				ptLogger.info(getName() + ", Schedule is set");
+    				}
 
     				for (int t = 0; t < person.getTourCount(); ++t) {
     					Tour tour = person.weekdayTours[t];
@@ -567,10 +586,16 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     								tour.primaryDestination.location.zoneNumber = dest.zoneNumber;
     					} else {
     						ptLogger.debug(getName() + ", Using work TAZ " + person.workTaz);
+    	    				if (tracePerson) { 
+    	        				ptLogger.info(getName() + ", Using work TAZ " + person.workTaz);
+    	    				}
     						dest = tazManager.getTazDataHashtable().get((int) person.workTaz);
     						tour.primaryDestination.location.zoneNumber = person.workTaz;
     					}
     					ptLogger.debug(getName() + ", Primary destination is set");
+	    				if (tracePerson) { 
+	        				ptLogger.info(getName() + ", Primary destination is set");
+	    				}
 
     					if (tracePerson) {
     						ptLogger.info(getName() + ", Chose destination: "
@@ -580,6 +605,10 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
     					ptLogger.debug(getName() + ", Running tour mode choice from " + orig.getZoneNumber() + " to taz  "
     							+ dest.getZoneNumber() + " for tour number " + tour.tourNumber);
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Running tour mode choice from " + orig.getZoneNumber() + " to taz  "
+        							+ dest.getZoneNumber() + " for tour number " + tour.tourNumber);
+    					}
     					tourMC.setAttributes(household, person, tour,  skims, orig, dest);
     					tourMC.calculateUtility();                        
 
@@ -589,12 +618,18 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
     					tour.primaryMode = tourMC.chooseMode(random);
     					ptLogger.debug(getName() + ", Tour mode is set");
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Tour mode is set");
+    					}
 
     					if (tracePerson) {
     						ptLogger.info(getName() + ", Chose mode: " + tour.primaryMode);
     					}
 
     					ptLogger.debug(getName() + ", Running intermediate stop purpose model for tour " + tour.tourNumber);
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Running intermediate stop purpose model for tour " + tour.tourNumber);
+    					}
 
     					if(sensitivityTestingMode)
     						random.setSeed(stopPurposeFixedSeed + person.randomSeed + System.currentTimeMillis());
@@ -603,6 +638,9 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
 
     					ptLogger.debug(getName() + ", Running stop location choice for tour " + tour.tourNumber);
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Running stop location choice for tour " + tour.tourNumber);
+    					}
     					
     					if(sensitivityTestingMode)
     						random.setSeed(stopDestinationFixedSeed + person.randomSeed + System.currentTimeMillis());
@@ -616,6 +654,13 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     								+ " to "  + tour.intermediateStop1.location.zoneNumber);
 
     						ptLogger.debug("Calculating stop duration utilities");
+        					if (tracePerson) {
+        						ptLogger.info("Running stop duration choice for stop 1 for tour " + tour.tourNumber);
+        						ptLogger.info("From zone " + tour.begin.location.zoneNumber
+        								+ " to "  + tour.intermediateStop1.location.zoneNumber);
+
+        						ptLogger.info("Calculating stop duration utilities");
+        					}
     						
     						stopDurationModel.calculateUtilities(person, tour,tour.intermediateStop1);
 
@@ -639,6 +684,9 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
 
     					if (tour.intermediateStop2 != null) {
     						ptLogger.debug("Running stop duration choice.");
+        					if (tracePerson) {
+        						ptLogger.info("Running stop duration choice.");
+        					}
     						stopDurationModel.calculateUtilities(person, tour, tour.intermediateStop2);
     						if(sensitivityTestingMode)
     							random.setSeed(stopDuration2FixedSeed + person.randomSeed + System.currentTimeMillis());
@@ -659,12 +707,18 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     					}
 
     					ptLogger.debug(getName() + ", Running trip mode choice.");
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Running trip mode choice.");
+    					}
     					if(sensitivityTestingMode)
     						random.setSeed(tripModeFixedSeed + person.randomSeed + System.currentTimeMillis());
     					else random.setSeed(tripModeFixedSeed + person.randomSeed);
     					tripModeChoiceModel.calculateTripModes(household,
     							person, tour,  skims, tazManager, random);
     					ptLogger.debug(getName() + ", Trip mode is set");
+    					if (tracePerson) {
+    						ptLogger.info(getName() + ", Trip mode is set");
+    					}
     				}
 
     				//process work-based tours
@@ -678,6 +732,12 @@ public class MicroSimulationWorkerTask extends MessageProcessingTask {
     						if(sensitivityTestingMode)
     							random.setSeed(workBasedFixedSeed + person.randomSeed + wbTour.tourNumber + System.currentTimeMillis());
     						else random.setSeed(workBasedFixedSeed + person.randomSeed + wbTour.tourNumber);
+        					if (tracePerson) {
+        						ptLogger.info(getName() + ", Running work based tours.");
+        						ptLogger.info(getName() + ", workBasedFixedSeed: " + workBasedFixedSeed);
+        						ptLogger.info(getName() + ", person seed: " + person.randomSeed);
+        						ptLogger.info(getName() + ", WBTour number: " + wbTour.tourNumber);
+        					}
 
     						workBasedTourModel.calculateWorkBasedTour(household,
     								person, wbTour,  skims, workMCLogsums, tazManager,

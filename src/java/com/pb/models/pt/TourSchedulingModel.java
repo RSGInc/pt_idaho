@@ -1650,7 +1650,7 @@ public class TourSchedulingModel extends TimedModel {
         for (int i = 0; i < person.getTourCount(); ++i) {
             calculateUtilities(household, person, person.getTourByPriority(i),
                     skims);
-            SeededRandom.setSeed(person.hhID + person.memberID);
+            SeededRandom.setSeed(person.hhID*100 + person.memberID);
             chooseSchedule(random);
         }
         

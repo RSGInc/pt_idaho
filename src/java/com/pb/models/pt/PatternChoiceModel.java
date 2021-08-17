@@ -1368,8 +1368,8 @@ public class PatternChoiceModel extends TimedModel {
 
                 wTour.parentTourNumber=i-1;
                 wTours = new ArrayList<Tour>();
-                wTours.add(wTour);
                 wTour.tourNumber = wTours.size();
+                wTours.add(wTour);
             }
 
             tour = new Tour("h" + t + "h", previous);
